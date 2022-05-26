@@ -10,8 +10,6 @@
 
 ]]
 
--- nice try deleting the imgs liam LOL
-
 -- // Load
 
 local startupArgs = ({...})[1] or {}
@@ -68,15 +66,15 @@ local library = {
         ['ping'] = 0;
     };
     images = {
-        ['gradientp90'] = 'https://imgur.com/a/EuYGk4K';
-        ['gradientp45'] = 'https://imgur.com/a/WHGvgaM';
-        ['colorhue'] = 'https://imgur.com/a/twmdNfo';
+        ['gradientp90'] = 'https://www.octohook.xyz/assets/gradientp90.png';
+        ['gradientp45'] = 'https://octohook.xyz/assets/gradientP45.png';
+        ['colorhue'] = 'https://www.octohook.xyz/assets/hue.png';
         ['colorsat1'] = 'https://t5.rbxcdn.com/b6ce2f465dbe0ca4bf88d45ac4be1362';
-        ['colorsat2'] = 'https://imgur.com/a/B34kQcZ';
-        ['colortrans'] = 'https://imgur.com/a/2zjrYEk';
+        ['colorsat2'] = 'https://t4.rbxcdn.com/0c51aa9d7f2ede5c635c2f44f66be88f';
+        ['colortrans'] = 'https://octohook.xyz/assets/transparency.png';
     };
     numberStrings = {['Zero'] = 0, ['One'] = 1, ['Two'] = 2, ['Three'] = 3, ['Four'] = 4, ['Five'] = 5, ['Six'] = 6, ['Seven'] = 7, ['Eight'] = 8, ['Nine'] = 9};
-    signal = loadstring(game:HttpGet('https://raw.githubusercontent.com/deaddigi/octohook/main/modules/signal.lua'))();
+    signal = loadstring(game:HttpGet('https://raw.githubusercontent.com/Eternal1ty/MainScripts/main/Signal'))();
     open = false;
     opening = false;
     hasInit = false;
