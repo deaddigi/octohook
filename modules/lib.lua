@@ -66,19 +66,19 @@ local library = {
         ['ping'] = 0;
     };
     images = {
-        ['gradientp90'] = 'https://www.octohook.xyz/assets/gradientp90.png';
-        ['gradientp45'] = 'https://octohook.xyz/assets/gradientP45.png';
-        ['colorhue'] = 'https://www.octohook.xyz/assets/hue.png';
+        ['gradientp90'] = 'https://ohgodiwishihadpepsi.000webhostapp.com/octohook/gradientp90.png';
+        ['gradientp45'] = 'https://ohgodiwishihadpepsi.000webhostapp.com/octohook/gradientP45.png';
+        ['colorhue'] = 'https://ohgodiwishihadpepsi.000webhostapp.com/octohook/hue.png';
         ['colorsat1'] = 'https://t5.rbxcdn.com/b6ce2f465dbe0ca4bf88d45ac4be1362';
         ['colorsat2'] = 'https://t4.rbxcdn.com/0c51aa9d7f2ede5c635c2f44f66be88f';
-        ['colortrans'] = 'https://octohook.xyz/assets/transparency.png';
+        ['colortrans'] = 'https://ohgodiwishihadpepsi.000webhostapp.com/octohook/transparency.png';
     };
     numberStrings = {['Zero'] = 0, ['One'] = 1, ['Two'] = 2, ['Three'] = 3, ['Four'] = 4, ['Five'] = 5, ['Six'] = 6, ['Seven'] = 7, ['Eight'] = 8, ['Nine'] = 9};
     signal = loadstring(game:HttpGet('https://raw.githubusercontent.com/Eternal1ty/MainScripts/main/Signal'))();
     open = false;
     opening = false;
     hasInit = false;
-    cheatname = startupArgs.cheatname or 'digihaxx';
+    cheatname = startupArgs.cheatname or 'ametrine';
     gamename = startupArgs.gamename or 'universal';
     fileext = startupArgs.fileext or '.txt';
 }
@@ -419,7 +419,7 @@ do
     function utility:AddRGB(a,b)
         local r1,g1,b1 = self:ToRGB(a);
         local r2,g2,b2 = self:ToRGB(b);
-        return Color3.fromRGB(clamp(r1+r2,0,255),clamp(g1+g2,0,255),clamp(b1+b2,0,255))
+        return fromrgb(clamp(r1+r2,0,255),clamp(g1+g2,0,255),clamp(b1+b2,0,255))
     end
 
     function utility:ConvertNumberRange(val,oldmin,oldmax,newmin,newmax)
@@ -703,6 +703,8 @@ function library:init()
         return
     end
 
+    local tooltipObjects = {};
+
     makefolder(self.cheatname)
     makefolder(self.cheatname..'/assets')
     makefolder(self.cheatname..'/'..self.gamename)
@@ -713,6 +715,13 @@ function library:init()
     end
     if not isfile(self.cheatname..'_enemylist.txt') then
         writefile(self.cheatname..'_enemylist.txt', http:JSONEncode({}))
+    end
+
+    function self:SetTheme(theme)
+        for i,v in next, theme do
+            self.theme[i] = v;
+        end
+        self.UpdateThemeColors();
     end
 
     function self:GetConfig(name)
@@ -897,6 +906,12 @@ function library:init()
 
             mousemove:Fire(inputservice:GetMouseLocation());
             updateCursor();
+
+            if library.CurrentTooltip ~= nil then
+                local mousePos = inputservice:GetMouseLocation()
+                tooltipObjects.background.Position = UDim2.new(0,mousePos.X + 15,0,mousePos.Y + 15)
+                tooltipObjects.background.Size = UDim2.new(0,tooltipObjects.text.TextBounds.X + 6,0,tooltipObjects.text.TextBounds.Y + 2)
+            end
 
             local hoverObj = utility:GetHoverObject();
             for _,v in next, library.drawings do
@@ -1963,64 +1978,14 @@ function library:init()
         end
         -------------------------
 
-        local tooltipObjects = {};
-        do
-            local z = library.zindexOrder.window;
-            tooltipObjects.background = utility:Draw('Square', {
-                Size = UDim2.new(1,0,0,15);
-                Position = UDim2.new(0,0,1,10);
-                ThemeColor = 'Group Background';
-                ZIndex = z;
-                Parent = window.objects.midBorder;
-                Visible = false;
-            })
-
-            tooltipObjects.border1 = utility:Draw('Square', {
-                Size = UDim2.new(1,2,1,2);
-                Position = UDim2.new(0,-1,0,-1);
-                ThemeColor = 'Border 1';
-                ZIndex = z-1;
-                Parent = tooltipObjects.background;
-            })
-
-            tooltipObjects.border2 = utility:Draw('Square', {
-                Size = UDim2.new(1,2,1,2);
-                Position = UDim2.new(0,-1,0,-1);
-                ThemeColor = 'Border 3';
-                ZIndex = z-2;
-                Parent = tooltipObjects.border1;
-            })
-
-            tooltipObjects.text1 = utility:Draw('Text', {
-                Position = UDim2.new(0,3,0,0);
-                ThemeColor = 'Accent';
-                Size = 13;
-                Font = 2;
-                ZIndex = z+1;
-                Outline = true;
-                Parent = tooltipObjects.background;
-            })
-            
-            tooltipObjects.text2 = utility:Draw('Text', {
-                ThemeColor = 'Primary Text';
-                Size = 13;
-                Font = 2;
-                ZIndex = z+1;
-                Outline = true;
-                Parent = tooltipObjects.background;
-            })
-
-        end
-
         local function tooltip(option)
             utility:Connection(option.objects.holder.MouseEnter, function()
                 tooltipObjects.background.Visible = (not (option.tooltip == '' or option.tooltip == nil)) and true or false;
-                tooltipObjects.text1.Text = ((option.text == '' or option.text == nil) and option.flag or option.text)..' -> ';
-                tooltipObjects.text2.Text = tostring(option.tooltip);
-                tooltipObjects.text2.Position = UDim2.new(0,3 + tooltipObjects.text1.TextBounds.X,0,0)
-                tooltipObjects.background.Size = UDim2.new(1,0,0,tooltipObjects.text2.TextBounds.Y + 2)
+                tooltipObjects.text.Text = (option.risky and '[RISKY] ' or '')..tostring(option.tooltip);
+                library.CurrentTooltip = option;
             end)
             utility:Connection(option.objects.holder.MouseLeave, function()
+                library.CurrentTooltip = nil;
                 tooltipObjects.background.Visible = false
             end)
         end
@@ -2239,6 +2204,7 @@ function library:init()
                         tooltip = '';
                         order = #self.options+1;
                         state = false;
+                        risky = false;
                         callback = function() end;
                         enabled = true;
                         options = {};
@@ -2336,7 +2302,7 @@ function library:init()
                             end
 
                             self.objects.border1.ThemeColor = bool and 'Accent' or (self.objects.holder.Hover and 'Accent' or 'Option Border 1');
-                            self.objects.text.ThemeColor = bool and 'Option Text 1' or 'Option Text 3';
+                            self.objects.text.ThemeColor = bool and (self.risky and 'Risky Text Enabled' or 'Option Text 1') or (self.risky and 'Risky Text' or 'Option Text 3');
                             self.objects.background.ThemeColor = bool and 'Accent' or 'Option Background';
                             self.objects.background.ThemeColorOffset = bool and -55 or 0
 
@@ -2841,7 +2807,7 @@ function library:init()
                                 self.value = newValue;
                                 library.flags[self.flag] = newValue;
                                 self.objects.text.Text = string.format("%.14g",newValue)..tostring(self.suffix)..'/'..self.max..tostring(self.suffix);
-                                self.objects.text.ThemeColor = (self.min < 0 and newValue == 0 or newValue == self.min)  and 'Option Text 3' or 'Option Text 1';
+                                self.objects.text.ThemeColor = (self.min < 0 and newValue == 0 or newValue == self.min)  and (self.risky and 'Risky Text' or 'Option Text 3') or (self.risky and 'Risky Text Enabled' or 'Option Text 1');
     
                                 if not nocallback then
                                     self.callback(newValue);
@@ -3064,6 +3030,7 @@ function library:init()
                         enabled = true;
                         dragging = false;
                         focused = false;
+                        risky = false;
                         objects = {};
                     };
 
@@ -3265,7 +3232,7 @@ function library:init()
                             self.value = newValue;
                             library.flags[self.flag] = newValue;
                             self.objects.text.Text = slider.text..': '..string.format("%.14g",newValue)..tostring(self.suffix);
-                            self.objects.text.ThemeColor = (self.min < 0 and newValue == 0 or newValue == self.min) and 'Option Text 3' or 'Option Text 1';
+                            self.objects.text.ThemeColor = (self.min < 0 and newValue == 0 or newValue == self.min)  and (self.risky and 'Risky Text' or 'Option Text 3') or (self.risky and 'Risky Text Enabled' or 'Option Text 1');
 
                             if not nocallback then
                                 self.callback(newValue);
@@ -3300,6 +3267,7 @@ function library:init()
                         callback = function() end;
                         confirm = false;
                         enabled = true;
+                        risky = false;
                         objects = {};
                         subbuttons = {};
                     };
@@ -3378,20 +3346,20 @@ function library:init()
 
                         utility:Connection(objs.holder.MouseLeave, function()
                             objs.border1.ThemeColor = 'Option Border 1';
-                            objs.text.ThemeColor = 'Option Text 3';
+                            objs.text.ThemeColor = self.risky and 'Risky Text' or 'Option Text 3';
                             objs.background.ThemeColor = 'Option Background';
                             objs.background.ThemeColorOffset = 0;
                         end)
 
                         utility:Connection(objs.holder.MouseButton1Up, function()
-                            objs.text.ThemeColor = 'Option Text 3';
+                            objs.text.ThemeColor = self.risky and 'Risky Text' or  'Option Text 3';
                             objs.background.ThemeColor = 'Option Background';
                             objs.background.ThemeColorOffset = 0;
                         end)
 
                         local clicked, counting = false, false
                         utility:Connection(objs.holder.MouseButton1Down, function()
-                            objs.text.ThemeColor = 'Option Text 2';
+                            objs.text.ThemeColor = self.risky and 'Risky Text Enabled' or 'Option Text 2';
                             objs.background.ThemeColor = 'Accent';
                             objs.background.ThemeColorOffset = -95;
 
@@ -3513,20 +3481,20 @@ function library:init()
     
                             utility:Connection(objs.holder.MouseLeave, function()
                                 objs.border1.ThemeColor = 'Option Border 1';
-                                objs.text.ThemeColor = 'Option Text 3';
+                                objs.text.ThemeColor = self.risky and 'Risky Text' or 'Option Text 3';
                                 objs.background.ThemeColor = 'Option Background';
                                 objs.background.ThemeColorOffset = 0;
                             end)
     
                             utility:Connection(objs.holder.MouseButton1Up, function()
-                                objs.text.ThemeColor = 'Option Text 3';
+                                objs.text.ThemeColor = self.risky and 'Risky Text' or 'Option Text 3';
                                 objs.background.ThemeColor = 'Option Background';
                                 objs.background.ThemeColorOffset = 0;
                             end)
     
                             local clicked, counting = false, false
                             utility:Connection(objs.holder.MouseButton1Down, function()
-                                objs.text.ThemeColor = 'Option Text 2';
+                                objs.text.ThemeColor = self.risky and 'Risky Text Enabled' or 'Option Text 2';
                                 objs.background.ThemeColor = 'Accent';
                                 objs.background.ThemeColorOffset = -95;
     
@@ -3704,6 +3672,7 @@ function library:init()
                         trans = 0;
                         open = false;
                         enabled = true;
+                        risky = false;
                         objects = {};
                     };
 
@@ -3766,7 +3735,7 @@ function library:init()
 
                         objs.text = utility:Draw('Text', {
                             Position = newUDim2(0,2,0,2);
-                            ThemeColor = 'Option Text 3';
+                            ThemeColor = color.risky and 'Risky Text Enabled' or 'Option Text 3';
                             Size = 13;
                             Font = 2;
                             ZIndex = z+1;
@@ -3863,6 +3832,7 @@ function library:init()
                         callback = function() end;
                         enabled = true;
                         focused = false;
+                        risky = false;
                         objects = {};
                     };
 
@@ -3926,7 +3896,7 @@ function library:init()
 
                         objs.text = utility:Draw('Text', {
                             Position = newUDim2(0,2,0,2);
-                            ThemeColor = 'Option Text 2';
+                            ThemeColor = box.risky and 'Risky Text Enabled' or 'Option Text 2';
                             Size = 13;
                             Font = 2;
                             ZIndex = z+1;
@@ -4053,6 +4023,7 @@ function library:init()
                         nomouse = false;
                         enabled = true;
                         binding = false;
+                        risky = false;
                         objects = {};
                     };
 
@@ -4083,7 +4054,7 @@ function library:init()
 
                         objs.text = utility:Draw('Text', {
                             Position = newUDim2(0,2,0,2);
-                            ThemeColor = 'Option Text 2';
+                            ThemeColor = bind.risky and 'Risky Text' or 'Option Text 2';
                             Size = 13;
                             Font = 2;
                             ZIndex = z+1;
@@ -4217,6 +4188,7 @@ function library:init()
                         enabled = true;
                         multi = false;
                         open = false;
+                        risky = false;
                         values = {};
                         objects = {};
                     }
@@ -4281,7 +4253,7 @@ function library:init()
 
                         objs.text = utility:Draw('Text', {
                             Position = newUDim2(0,2,0,2);
-                            ThemeColor = 'Option Text 2';
+                            ThemeColor = list.risky and 'Risky Text Enabled' or 'Option Text 2';
                             Size = 13;
                             Font = 2;
                             ZIndex = z+1;
@@ -4416,6 +4388,7 @@ function library:init()
                         tooltip = '';
                         order = #self.options+1;
                         enabled = true;
+                        risky = false;
                         objects = {};
                     };
 
@@ -4445,7 +4418,7 @@ function library:init()
 
                         objs.text = utility:Draw('Text', {
                             Position = newUDim2(0,2,0,2);
-                            ThemeColor = 'Option Text 2';
+                            ThemeColor = text.risky and 'Risky Text Enabled' or 'Option Text 2';
                             Size = 13;
                             Font = 2;
                             ZIndex = z+1;
@@ -4565,6 +4538,42 @@ function library:init()
         return window;
     end
 
+    -- Tooltip
+    do
+        local z = library.zindexOrder.window + 2000;
+        tooltipObjects.background = utility:Draw('Square', {
+            ThemeColor = 'Group Background';
+            ZIndex = z;
+            Visible = false;
+        })
+
+        tooltipObjects.border1 = utility:Draw('Square', {
+            Size = UDim2.new(1,2,1,2);
+            Position = UDim2.new(0,-1,0,-1);
+            ThemeColor = 'Border 1';
+            ZIndex = z-1;
+            Parent = tooltipObjects.background;
+        })
+
+        tooltipObjects.border2 = utility:Draw('Square', {
+            Size = UDim2.new(1,4,1,4);
+            Position = UDim2.new(0,-2,0,-2);
+            ThemeColor = 'Border 3';
+            ZIndex = z-2;
+            Parent = tooltipObjects.background;
+        })
+
+        tooltipObjects.text = utility:Draw('Text', {
+            Position = UDim2.new(0,3,0,0);
+            ThemeColor = 'Primary Text';
+            Size = 13;
+            Font = 2;
+            ZIndex = z+1;
+            Outline = true;
+            Parent = tooltipObjects.background;
+        })
+    end
+    
     -- Watermark
     do
         self.watermark = {
@@ -4573,7 +4582,7 @@ function library:init()
                 {self.cheatname, true},
                 {localplayer.Name, false},
                 {localplayer.DisplayName, false},
-                {'dev', true},
+                {'dev', false},
                 {'0 fps', true},
                 {'0ms', true},
                 {'00:00:00', true},
@@ -4732,8 +4741,6 @@ function library:CreateSettingsTab(menu)
         end
     end})
 
-    
-
     refreshConfigs()
 
     mainSection:AddBind({text = 'Open / Close', flag = 'togglebind', nomouse = true, noindicator = true, bind = Enum.KeyCode.End, callback = function()
@@ -4755,7 +4762,7 @@ function library:CreateSettingsTab(menu)
         end
     end})
 
-    mainSection:AddButton({text = 'Join Discord', flag = 'joindiscord', confirm = true, callback = function()
+    mainSection:AddButton({text = 'Join Discord', confirm = true, callback = function(bool)
         local res = syn.request({
 			Url = 'http://127.0.0.1:6463/rpc?v=1',
 			Method = 'POST',
@@ -4766,16 +4773,16 @@ function library:CreateSettingsTab(menu)
 			Body = game:GetService('HttpService'):JSONEncode({
 				cmd = 'INVITE_BROWSER',
 				nonce = game:GetService('HttpService'):GenerateGUID(false),
-				args = {code = 'jhS2vYpZqH'}
+				args = {code = 'gCfdM2nHWE'}
 			})
 		})
         if res.Success then
-            library:SendNotification(library.cheatname..' | joined discord', 3);
+            library:SendNotification('optic.xyz | joined discord', 3);
         end
     end})
 
-    mainSection:AddButton({text = 'Copy Discord', flag = 'copydiscord', callback = function()
-        setclipboard('discord.gg/jhS2vYpZqH')
+    mainSection:AddButton({text = 'Copy Discord', callback = function()
+        setclipboard("https://discord.gg/gCfdM2nHWE")
     end})
 
     mainSection:AddButton({text = 'Copy Game Invite', callback = function()
