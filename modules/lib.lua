@@ -4777,7 +4777,7 @@ function library:CreateSettingsTab(menu)
 			})
 		})
         if res.Success then
-            library:SendNotification('optic.xyz | joined discord', 3);
+            library:SendNotification('self.cheatname.. | joined discord', 3);
         end
     end})
 
